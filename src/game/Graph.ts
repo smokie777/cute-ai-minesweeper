@@ -1,11 +1,22 @@
 import { flatten1Depth, pickRandomFromArray } from '../utils';
 import { Node, NodeType } from './Node';
 
+export type GraphType = {
+  nodes: NodeType[][],
+  populateMines: (numMines:number, initialX:number, initialY:number) => void;
+  revealAllMines: () => void;
+  pickFirstMove: () => NodeType;
+  getSomeFlaggableNodes: () => NodeType[];
+  getSomeClickableNodes: () => NodeType[];
+}
+
 export const Graph = (width: number, height: number) => {
   // populate graph node references
   const nodes:NodeType[][] = Array(height) // this is a nested array to represent the board
     .fill(null)
     .map(i => Array(width).fill(null).map(i => Node()));
+  const nodeFlagCache:NodeType[] = [];
+  const nodeClickCache:NodeType[] = [];
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -71,6 +82,51 @@ export const Graph = (width: number, height: number) => {
           }
         });
       });
+    },
+    pickFirstMove: () => {
+      const pool:NodeType[] = [];
+      for (let y = 2; y < nodes.length - 2; y++) {
+        for (let x = 2; x < nodes[y].length - 2; x++) {
+          pool.push(nodes[y][x]);
+        }
+      }
+      return pickRandomFromArray(pool);
+    },
+    getSomeFlaggableNodes: () => {
+      for (let y = 0; y < nodes.length; y++) {
+        for (let x = 0; x < nodes[y].length; x++) {
+          const node = nodes[y][x];
+          if (!nodeFlagCache.includes(node) && node.isRevealed && node.number) {
+            const surroundingNodes = node.getAllSurroundingNodes().filter(i => !i.isRevealed);
+            if (surroundingNodes.length === node.number) {
+              nodeFlagCache.push(node);
+              const surroundingNonFlaggedNodes = surroundingNodes.filter(i => !i.isFlagged);
+              return surroundingNonFlaggedNodes;
+            }
+          }
+        }
+      }
+      return [];
+    },
+    getSomeClickableNodes: () => {
+      for (let y = 0; y < nodes.length; y++) {
+        for (let x = 0; x < nodes[y].length; x++) {
+          const node = nodes[y][x];
+          if (!nodeClickCache.includes(node) && node.isRevealed && node.number) {
+            const surroundingNodes = node.getAllSurroundingNodes().filter(i => !i.isRevealed);
+            const surroundingFlaggedNodes = surroundingNodes.filter(i => i.isFlagged);
+            const surroundingNonFlaggedNodes = surroundingNodes.filter(i => !i.isFlagged);
+            if (
+              surroundingFlaggedNodes.length === node.number
+              && surroundingNonFlaggedNodes.length
+            ) {
+              nodeClickCache.push(node);
+              return surroundingNonFlaggedNodes;
+            }
+          }
+        }
+      }
+      return [];
     }
   };
 };

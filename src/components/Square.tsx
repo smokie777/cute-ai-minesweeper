@@ -15,6 +15,23 @@ export const Square = ({
     user-select: none;
     font-size: 50px;
     color: ${minesweeperColors[number]};
+    position: relative;
+
+    .flag_container {
+      height: 80px;
+      width: 80px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .flag {
+        height: 75%;
+        width: 75%;
+      }
+    }
 
     .revealed_square_background {
       background: ${isGameOverNode ? colors.orange : colors.pinkBackground};
@@ -42,14 +59,6 @@ export const Square = ({
         background: ${colors.pink};
         height: 85%;
         width: 85%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        .flag {
-          height: 75%;
-          width: 75%;
-        }
       }
     }
   `;
@@ -72,17 +81,18 @@ export const Square = ({
         </div>
       ) : (
         <div className='unrevealed_square_background'>
-          <div className='square_foreground'>
-          {isFlagged && (
-            <img 
-              className='flag'
-              alt='flag'
-              src='assets/butterfly.png'
-              width='80px'
-              height='80px'
-            />
-          )}
-          </div>
+          <div className='square_foreground' />
+        </div>
+      )}
+      {isFlagged && (
+        <div className='flag_container'>
+          <img 
+            className='flag'
+            alt='flag'
+            src='assets/butterfly.png'
+            width='80px'
+            height='80px'
+          />
         </div>
       )}
     </div>
