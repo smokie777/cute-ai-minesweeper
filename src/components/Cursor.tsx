@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
+import { aiMoveTimeMs, layout } from '../constants';
 
 const cursorCss = css`
   position: absolute;
-  transition: all 0.75s linear;
+  transition: all ${aiMoveTimeMs / 1000}s linear;
   z-index: 1;
 `;
 
@@ -13,8 +14,8 @@ export const Cursor = () => {
       className={cursorCss}
       alt='cursor'
       src='assets/cursor.png'
-      width='80px'
-      height='80px'
+      width={`${layout.squareSize}px`}
+      height={`${layout.squareSize}px`}
       style={{ top: '31px', left: '22px' }}
     />
   );

@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
 import { colors } from './colors';
+import { layout } from '../constants';
 
 const topBarCss = css`
   background: ${colors.pinkDark};
-  height: 80px;
+  height: ${layout.squareSize}px;
   display: flex;
   justify-content: space-between;
   font-size: 50px;
@@ -15,7 +16,7 @@ const topBarCss = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 80px;
+    width: ${layout.squareSize}px;
 
     img {
       height: 85%;
@@ -56,8 +57,8 @@ export const TopBar = ({
         className='flag'
         alt='flag'
         src='assets/butterfly.png'
-        width='80px'
-        height='80px'
+        width={`${layout.squareSize}px`}
+        height={`${layout.squareSize}px`}
       />
     </div>
     <div className='top_bar_number_display'>{formatTopBarNumDisplay(timer)}</div>

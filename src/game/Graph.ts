@@ -4,10 +4,12 @@ import { Node, NodeType } from './Node';
 export type GraphType = {
   nodes: NodeType[][],
   populateMines: (numMines:number, initialX:number, initialY:number) => void;
+  nodeOnReveal: (node:NodeType) => void;
   revealAllMines: () => void;
   pickFirstMove: () => NodeType;
   getSomeFlaggableNodes: () => NodeType[];
   getSomeClickableNodes: () => NodeType[];
+  getOneClickableNodeAtRandom: () => NodeType|undefined
 }
 
 export const Graph = (width: number, height: number) => {
@@ -32,6 +34,28 @@ export const Graph = (width: number, height: number) => {
       nodes[y][x].dr = y < height - 1 && x < width - 1 ? nodes[y + 1][x + 1] : null;
     }
   }
+
+  const nodeOnReveal = (node:NodeType) => {
+    // if there is a mine, lose the game
+    // if there is a number, reveal only the clicked node
+    // if there is no number and no mine, call onReveal recursively on all adjacent nodes.
+    if (node.isRevealed) {
+      return;
+    } else {
+      node.isRevealed = true;
+      nodeClickCache.push(node);
+      if (!node.number) {
+        nodeFlagCache.push(node);
+      }
+      if (!(node.hasMine || node.number)) {
+        node.isRevealed = true;
+        nodeClickCache.push(node);
+        node.getAllSurroundingNodes().forEach(i => {
+          nodeOnReveal(i);
+        });
+      }
+    }
+  };
 
   return {
     // properties
@@ -74,6 +98,7 @@ export const Graph = (width: number, height: number) => {
         });
       });
     },
+    nodeOnReveal,
     revealAllMines: () => {
       nodes.forEach(arr => {
         arr.forEach(i => {
@@ -101,7 +126,9 @@ export const Graph = (width: number, height: number) => {
             if (surroundingNodes.length === node.number) {
               nodeFlagCache.push(node);
               const surroundingNonFlaggedNodes = surroundingNodes.filter(i => !i.isFlagged);
-              return surroundingNonFlaggedNodes;
+              if (surroundingNonFlaggedNodes.length) {
+                return surroundingNonFlaggedNodes;
+              }
             }
           }
         }
@@ -127,6 +154,23 @@ export const Graph = (width: number, height: number) => {
         }
       }
       return [];
+    },
+    getOneClickableNodeAtRandom: () => {
+      // used as a last resort, for 50-50's or for when it would be too complex to calculate :')
+      // prioritize nodes that have an adjancent revealed tile.
+      const pool:NodeType[] = [];
+      for (let y = 0; y < nodes.length; y++) {
+        for (let x = 0; x < nodes[y].length; x++) {
+          const node = nodes[y][x];
+          if (!node.isRevealed && !node.isFlagged) {
+            pool.push(node);
+          }
+        }
+      }
+      return pool.sort((a, b) => (
+        b.getAllSurroundingNodes().filter(i => i.isRevealed).length
+        - a.getAllSurroundingNodes().filter(i => i.isRevealed).length
+      ))[0];
     }
   };
 };

@@ -1,5 +1,6 @@
 import { css } from '@emotion/css'
 import { colors, minesweeperColors } from './colors';
+import { layout } from '../constants';
 
 export const Square = ({
   hasMine = false,
@@ -10,16 +11,16 @@ export const Square = ({
   onClick = () => {}
 }) => {
   const squareCss = css`
-    height: 80px;
-    width: 80px;
+    height: ${layout.squareSize}px;
+    width: ${layout.squareSize}px;
     user-select: none;
     font-size: 50px;
     color: ${minesweeperColors[number]};
     position: relative;
 
     .flag_container {
-      height: 80px;
-      width: 80px;
+      height: ${layout.squareSize}px;
+      width: ${layout.squareSize}px;
       position: absolute;
       top: 0;
       left: 0;
@@ -48,8 +49,8 @@ export const Square = ({
     }
 
     .unrevealed_square_background {
-      height: 80px;
-      width: 80px;
+      height: ${layout.squareSize}px;
+      width: ${layout.squareSize}px;
       background: linear-gradient(-45deg, ${colors.pinkDark} 50%, ${colors.pinkLight} 50%);
       display: flex;
       justify-content: center;
@@ -72,8 +73,8 @@ export const Square = ({
               className='mine'
               alt='mine'
               src='assets/flower_1.png'
-              width='80px'
-              height='80px'
+              width={`${layout.squareSize}px`}
+              height={`${layout.squareSize}px`}
             />
           ) : (
             <div className='number'>{number !== 0 && number}</div>
@@ -90,8 +91,8 @@ export const Square = ({
             className='flag'
             alt='flag'
             src='assets/butterfly.png'
-            width='80px'
-            height='80px'
+            width={`${layout.squareSize}px`}
+            height={`${layout.squareSize}px`}
           />
         </div>
       )}
