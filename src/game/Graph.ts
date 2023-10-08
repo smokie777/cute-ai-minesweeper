@@ -26,7 +26,7 @@ export const Graph = (width: number, height: number) => {
     // properties
     nodes,
     // methods
-    populateMines: (numMines: number, initialX: number, initialY: number) => {
+    populateMines: (numMines:number, initialX:number, initialY:number) => {
       // commented out for testing
       // nodes.forEach(arr => {
       //   arr.forEach(i => {
@@ -37,7 +37,7 @@ export const Graph = (width: number, height: number) => {
       const nodesThatCantHaveMines = [
         ...(nodes[initialY][initialX]).getAllSurroundingNodes(),
         nodes[initialY][initialX]
-      ].filter(Boolean) as NodeType[];
+      ];
       const coordinatesThatCanHaveMines = flatten1Depth(nodes)
         .map(i => ({
           x: i.x,
@@ -58,7 +58,16 @@ export const Graph = (width: number, height: number) => {
       nodes.forEach(arr => {
         arr.forEach(node => {
           if (!node.hasMine) {
-            node.number = node.getAllSurroundingNodes().filter(i => i?.hasMine).length
+            node.number = node.getAllSurroundingNodes().filter(i => i.hasMine).length
+          }
+        });
+      });
+    },
+    revealAllMines: () => {
+      nodes.forEach(arr => {
+        arr.forEach(i => {
+          if (i.hasMine) {
+            i.isRevealed = true;
           }
         });
       });

@@ -5,9 +5,13 @@ import { Square } from './Square';
 import { useRef, useState } from 'react';
 import { flatten1Depth } from '../utils';
 import { colors } from './colors';
+import { NodeType } from '../game/Node';
+import { KeyPressListener } from './KeyPressListener';
 
 export const App = () => {
+  const gameOverNodeRef = useRef<NodeType|null>(null);
   const [rerender, setRerender] = useState(false);
+  const [isPlacingFlag, setIsPlacingFlag] = useState(false);
   const graphRef = useRef(Graph(
     minesweeper_layouts.beginner.width,
     minesweeper_layouts.beginner.height
@@ -33,6 +37,7 @@ export const App = () => {
 
   return (
     <div className={appCss}>
+      <KeyPressListener setIsPlacingFlag={setIsPlacingFlag} />
       <div className='board_background'>
         <div className='board'>
           {graphRef.current.nodes.map(y => (
@@ -42,15 +47,27 @@ export const App = () => {
                 hasMine={node.hasMine}
                 number={node.number}
                 isRevealed={node.isRevealed}
+                isFlagged={node.isFlagged}
+                isGameOverNode={node === gameOverNodeRef.current}
                 onClick={() => {
-                  if (!areMinesPlaced) {
+                  if (node.isRevealed || gameOverNodeRef.current) {
+                    return;
+                  } else if (!areMinesPlaced) {
                     graphRef.current.populateMines(
                       minesweeper_layouts.beginner.numMines,
                       node.x,
                       node.y
                     );
+                  } else if (isPlacingFlag) {
+                    node.isFlagged = true;
+                    setRerender(!rerender);
+                    return;
                   }
-                  graphRef.current.nodes[node.y][node.x].isRevealed = true;
+                  node.onReveal();
+                  if (node.hasMine) {
+                    gameOverNodeRef.current = node;
+                    graphRef.current.revealAllMines();
+                  }
                   setRerender(!rerender);
                 }}
               />

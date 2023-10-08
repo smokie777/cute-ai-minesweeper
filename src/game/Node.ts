@@ -13,11 +13,28 @@ export type NodeType = {
   dr: NodeType | null;
   x: number;
   y: number;
-  getAllSurroundingNodes: () => (NodeType | null)[];
+  getAllSurroundingNodes: () => NodeType[];
+  onReveal: () => void;
 };
 
 export const Node = () => {
-  const node = {
+  const onReveal = () => {
+    // if there is a mine, lose the game
+    // if there is a number, reveal only the clicked node
+    // if there is no number and no mine, call onReveal recursively on all adjacent nodes.
+    if (node.isRevealed) {
+      return;
+    } else if (node.hasMine || node.number) {
+      node.isRevealed = true;
+    } else {
+      node.isRevealed = true;
+      node.getAllSurroundingNodes().forEach(i => {
+        i.onReveal();
+      });
+    }
+  };
+
+  const node:NodeType = {
     // node properties
     isRevealed: false,
     isFlagged: false,
@@ -45,8 +62,8 @@ export const Node = () => {
       node.ur,
       node.dl,
       node.dr,
-    ] 
-
+    ].filter(Boolean) as NodeType[],
+    onReveal
   };
 
   return node;

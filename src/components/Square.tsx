@@ -4,6 +4,8 @@ import { colors, minesweeperColors } from './colors';
 export const Square = ({
   hasMine = false,
   isRevealed = false,
+  isGameOverNode = false,
+  isFlagged = false,
   number = 0,
   onClick = () => {}
 }) => {
@@ -15,7 +17,7 @@ export const Square = ({
     color: ${minesweeperColors[number]};
 
     .revealed_square_background {
-      background: ${colors.pinkBackground};
+      background: ${isGameOverNode ? colors.orange : colors.pinkBackground};
       height: 100%;
       width: 100%;
       display: flex;
@@ -40,6 +42,14 @@ export const Square = ({
         background: ${colors.pink};
         height: 85%;
         width: 85%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .flag {
+          height: 75%;
+          width: 75%;
+        }
       }
     }
   `;
@@ -62,7 +72,17 @@ export const Square = ({
         </div>
       ) : (
         <div className='unrevealed_square_background'>
-          <div className='square_foreground' />
+          <div className='square_foreground'>
+          {isFlagged && (
+            <img 
+              className='flag'
+              alt='flag'
+              src='assets/butterfly.png'
+              width='80px'
+              height='80px'
+            />
+          )}
+          </div>
         </div>
       )}
     </div>
