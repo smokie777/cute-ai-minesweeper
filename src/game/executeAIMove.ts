@@ -1,6 +1,8 @@
 import { layout, aiMoveTimeMs } from '../constants';
+import { fetch_post_vtuber_speak } from '../fetch_functions';
+import { AIMoveType } from '../types';
+import { GraphType } from './Graph';
 import { NodeType } from './Node';
-import { AIMoveType } from './genAIMove';
 
 const moveCursorToNode = (node:NodeType) => {
   const baseTop = 31;
@@ -12,12 +14,21 @@ const moveCursorToNode = (node:NodeType) => {
   }
 };
 
-export const executeAIMove = (AIMove:AIMoveType) => {
+export const executeAIMove = (AIMove:AIMoveType, graph:GraphType) => {
   moveCursorToNode(AIMove.node);
 
   setTimeout(() => {
     if (AIMove.action === 'click') {
-      AIMove.node.onReveal();
+      const numNodesRevealed = graph.nodeOnReveal(AIMove.node);
+      if (!AIMove.shouldSkipReact) {
+        if (numNodesRevealed > 10) {
+          fetch_post_vtuber_speak(`You revealed ${numNodesRevealed} squares in one click in Minesweeper. Give a lukewarm response.`);
+        } else if (numNodesRevealed > 20) {
+          fetch_post_vtuber_speak(`You revealed ${numNodesRevealed} squares in one click in Minesweeper. Give a slightly excited response!`);
+        } else if (numNodesRevealed > 30) {
+          fetch_post_vtuber_speak(`You revealed ${numNodesRevealed} squares in one click in Minesweeper. Holy shit!`);
+        }
+      }
     } else if (AIMove.action === 'flag') {
       AIMove.node.isFlagged = !AIMove.node.isFlagged;
     }

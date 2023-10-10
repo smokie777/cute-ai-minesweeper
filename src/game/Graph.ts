@@ -4,12 +4,13 @@ import { Node, NodeType } from './Node';
 export type GraphType = {
   nodes: NodeType[][],
   populateMines: (numMines:number, initialX:number, initialY:number) => void;
-  nodeOnReveal: (node:NodeType) => void;
+  nodeOnReveal: (node:NodeType) => number;
   revealAllMines: () => void;
   pickFirstMove: () => NodeType;
   getSomeFlaggableNodes: () => NodeType[];
   getSomeClickableNodes: () => NodeType[];
-  getOneClickableNodeAtRandom: () => NodeType|undefined
+  getOneClickableNodeAtRandom: () => NodeType|undefined;
+  checkIsWin: (numMines:number) => boolean;
 }
 
 export const Graph = (width: number, height: number) => {
@@ -35,25 +36,26 @@ export const Graph = (width: number, height: number) => {
     }
   }
 
-  const nodeOnReveal = (node:NodeType) => {
+  const nodeOnReveal = (node:NodeType, numNodesRevealed = 0) => {
     // if there is a mine, lose the game
     // if there is a number, reveal only the clicked node
     // if there is no number and no mine, call onReveal recursively on all adjacent nodes.
     if (node.isRevealed) {
-      return;
+      return 0;
     } else {
       node.isRevealed = true;
-      nodeClickCache.push(node);
       if (!node.number) {
+        nodeClickCache.push(node);
         nodeFlagCache.push(node);
       }
+      let numNodesRevealedInThisCall = 1;
       if (!(node.hasMine || node.number)) {
-        node.isRevealed = true;
         nodeClickCache.push(node);
         node.getAllSurroundingNodes().forEach(i => {
-          nodeOnReveal(i);
+          numNodesRevealedInThisCall += nodeOnReveal(i, numNodesRevealed);
         });
       }
+      return numNodesRevealedInThisCall;
     }
   };
 
@@ -61,6 +63,10 @@ export const Graph = (width: number, height: number) => {
     // properties
     nodes,
     // methods
+    checkIsWin: (numMines: number) => {
+      const flattenedNodes = flatten1Depth(nodes);
+      return flattenedNodes.filter(node => !node.isRevealed).length === numMines;
+    },
     populateMines: (numMines:number, initialX:number, initialY:number) => {
       // commented out for testing
       // nodes.forEach(arr => {

@@ -6,6 +6,7 @@ export const Square = ({
   hasMine = false,
   isRevealed = false,
   isGameOverNode = false,
+  isWinNode = false,
   isFlagged = false,
   number = 0,
   onClick = () => {}
@@ -35,7 +36,7 @@ export const Square = ({
     }
 
     .revealed_square_background {
-      background: ${isGameOverNode ? colors.orange : colors.pinkBackground};
+      background: ${isGameOverNode ? colors.orange : isWinNode ? colors.pinkDark : colors.pinkBackground};
       height: 100%;
       width: 100%;
       display: flex;
